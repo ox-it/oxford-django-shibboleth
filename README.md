@@ -40,10 +40,14 @@ from django.urls import path
 
 urlpatterns = (
     ...
-    path('login/', LoginView.as_view(), name='login'),
+    path('login/', LoginView.as_view(redirect_authenticated_user=True), name='login'),
     ...
 )
 ```
+
+The `redirect_authenticated_user=True` bit is to ensure that the user is sent
+on after the middleware has authenticated them, and before it attempts to show
+a login form.
 
 Configure `mod_shib` to protect the login view:
 
