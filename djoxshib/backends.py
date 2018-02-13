@@ -48,4 +48,4 @@ class ShibbolethBackend(RemoteUserBackend):
                                                                         Q(name__startswith='affiliation:') |
                                                                         Q(name__startswith='status:')))
         # And add all the new groups
-        user.groups.add(*[Group.objects.get_or_create(g)[0] for g in groups])
+        user.groups.add(*[Group.objects.get_or_create(name=g)[0] for g in groups])
