@@ -6,6 +6,8 @@ from django.db.models import Q
 
 
 class ShibbolethBackend(RemoteUserBackend):
+    redirect_authenticated_user = True
+
     attribute_map = [
         ('givenName', 'first_name'),
         ('sn', 'last_name'),
