@@ -37,7 +37,7 @@ urlpatterns = (
 Configure `mod_shib` to protect the login view:
 
 ```apache
-<Location "/editor/login/">
+<Location "/login/">
     Require valid-user
     AuthType shibboleth
     ShibRequestSetting requiresession On
