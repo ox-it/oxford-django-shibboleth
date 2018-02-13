@@ -21,6 +21,17 @@ AUTHENTICATION_BACKENDS = (
 )
 ```
 
+And add `PersistentRemoteUserMiddleware` after the `AuthenticationMiddleware`:
+
+```python
+MIDDLEWARE = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.PersistentRemoteUserMiddleware',
+)
+```
+
 Add ``LoginView`` to your urls:
 
 ```python
