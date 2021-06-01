@@ -9,11 +9,16 @@ class ShibbolethBackend(RemoteUserBackend):
     attribute_map = [
         ('givenName', 'first_name'),
         ('sn', 'last_name'),
-        ('mail', 'email'),
+        # ('mail', 'email'),
     ]
 
     def authenticate(self, request, remote_user):
-        user = super().authenticate(request, remote_user)
+        suffix = '@ox.ac.uk'
+        cleaned_username = remote_user
+        if cleaned_username.endswith(suffix):
+            cleaned_username = cleaned_username[:-len(suffix)]
+
+        user = super(ShibbolethBackend, self).authenticate(request, cleaned_username)
         if user:
             self.update_user_data(request, user)
 
@@ -23,8 +28,13 @@ class ShibbolethBackend(RemoteUserBackend):
         for shib_attribute, user_attribute in self.attribute_map:
             if shib_attribute in request.META:
                 setattr(user, user_attribute, request.META[shib_attribute])
-            else:
-                setattr(user, user_attribute, user._meta.fields_map[user_attribute].default)
+            # else:
+            #     setattr(user, user_attribute, user._meta.fields_map[user_attribute].default)
+
+        # deal with email conditionally as some depts such as Maison Francaise don't provide it on login
+        if 'mail' in request.META:
+            setattr(user, 'email', request.META['mail'])
+
         user.save()
 
         groups = set()
@@ -35,7 +45,7 @@ class ShibbolethBackend(RemoteUserBackend):
         for orgunit_dn in request.META.get('orgunit-dn', '').split(';'):
             match = re.match('^oakUnitCode=(.*),ou=units,dc=oak,dc=ox,dc=ac,dc=uk$', orgunit_dn)
             if match:
-                groups.add('affilition:{}'.format(match.group(1)))
+                groups.add('affiliation:{}'.format(match.group(1)))
 
         for oak_itss_for in request.META.get('oakITSSFor', '').split(';'):
             match = re.match('^oakGN=ITSS,oakUnitCode=(.*),ou=units,dc=oak,dc=ox,dc=ac,dc=uk$', oak_itss_for)
